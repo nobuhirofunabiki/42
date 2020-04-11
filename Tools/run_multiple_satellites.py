@@ -12,6 +12,7 @@ def main():
 
     file_name = "InOut/SC_Simple_Multi.txt"
     num_sats = len(initial_states[0])
+    sat_states = pd.DataFrame(index=[], columns=[])
 
     for iSats in range(num_sats):
         pos_x_str = str(initial_states[0][iSats])
@@ -39,6 +40,25 @@ def main():
         file.close()
 
         subprocess.call("./42")
+
+        pos_eh = pd.read_csv('InOut/PosEH.42', sep=" ", header=None)
+        PX = 'SC-' + str(iSats) + '-px'
+        PY = 'SC-' + str(iSats) + '-py'
+        PZ = 'SC-' + str(iSats) + '-pz'
+        pos_eh.columns = [PX, PY, PZ]
+        vel_eh = pd.read_csv('InOut/VelEH.42', sep=" ", header=None)
+        VX = 'SC-' + str(iSats) + '-vx'
+        VY = 'SC-' + str(iSats) + '-vy'
+        VZ = 'SC-' + str(iSats) + '-vz'
+        vel_eh.columns = [VX, VY, VZ]
+        state_eh = pd.concat([pos_eh, vel_eh], axis='columns')
+        if sat_states.empty:
+            sat_states = state_eh
+        else:
+            sat_states = pd.concat([sat_states, state_eh], axis='columns')
+        print(sat_states)
+
+    sat_states.to_csv('Tools/sat_states_output.csv')
 
 
 if __name__ == '__main__':
