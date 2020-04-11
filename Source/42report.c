@@ -122,6 +122,7 @@ void Report(void)
       static FILE *PosNfile,*VelNfile,*qbnfile,*wbnfile;
       static FILE *PosWfile,*VelWfile;
       static FILE *PosRfile,*VelRfile;
+      static FILE *PosEHfile,*VelEHfile;
       static FILE *Hvnfile,*KEfile;
       static FILE *RPYfile;
       static FILE *Hwhlfile;
@@ -170,6 +171,8 @@ void Report(void)
          VelWfile = FileOpen(InOutPath,"VelW.42","w");
          PosRfile = FileOpen(InOutPath,"PosR.42","w");
          VelRfile = FileOpen(InOutPath,"VelR.42","w");
+         PosEHfile = FileOpen(InOutPath,"PosEH.42","w");
+         VelEHfile = FileOpen(InOutPath,"VelEH.42","w");
          qbnfile = FileOpen(InOutPath,"qbn.42","w");
          wbnfile = FileOpen(InOutPath,"wbn.42","w");
          Hvnfile = FileOpen(InOutPath,"Hvn.42","w");
@@ -229,6 +232,10 @@ void Report(void)
                   SC[0].PosR[0],SC[0].PosR[1],SC[0].PosR[2]);
                fprintf(VelRfile,"%le %le %le\n",
                   SC[0].VelR[0],SC[0].VelR[1],SC[0].VelR[2]);
+               fprintf(PosEHfile,"%le %le %le\n",
+                  SC[0].PosEH[0],SC[0].PosEH[1],SC[0].PosEH[2]);
+               fprintf(VelEHfile,"%le %le %le\n",
+                  SC[0].VelEH[0],SC[0].VelEH[1],SC[0].VelEH[2]);
             }
             fprintf(qbnfile,"%le %le %le %le\n",
                SC[0].B[0].qn[0],SC[0].B[0].qn[1],SC[0].B[0].qn[2],SC[0].B[0].qn[3]);
