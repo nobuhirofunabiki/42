@@ -2,7 +2,20 @@
 # -*- coding: utf-8 -*-
 
 import pandas as pd
+import numpy as np
 import subprocess
+
+
+def convert_nadirZ_to_zenithX(raw_vector):
+    rot_mat = np.matrix([[0.0, 0.0, -1.0], [1.0, 0.0, 0.0], [0.0, -1.0, 0.0]])
+    converted_vector = np.dot(rot_mat, raw_vector)
+    return converted_vector
+
+
+def convert_zenithX_to_nadirZ(raw_vector):
+    rot_mat = np.matrix([[0.0, 1.0, 0.0], [0.0, 0.0, -1.0], [-1.0, 0.0, 0.0]])
+    converted_vector = np.dot(rot_mat, raw_vector)
+    return converted_vector
 
 
 def main():
@@ -15,14 +28,18 @@ def main():
     sat_states = pd.DataFrame(index=[], columns=[])
 
     for iSats in range(num_sats):
-        pos_x_str = str(initial_states[0][iSats])
-        pos_y_str = str(initial_states[1][iSats])
-        pos_z_str = str(initial_states[2][iSats])
+        position = np.array([initial_states[0][iSats], initial_states[1][iSats], initial_states[2][iSats]])
+        position = convert_zenithX_to_nadirZ(position)
+        pos_x_str = str(position[0, 0])
+        pos_y_str = str(position[0, 1])
+        pos_z_str = str(position[0, 2])
         position_str = pos_x_str + "  " + pos_y_str + "  " + pos_z_str + " !  Pos wrt Formation (m), expressed in F\n"
 
-        vel_x_str = str(initial_states[3][iSats])
-        vel_y_str = str(initial_states[4][iSats])
-        vel_z_str = str(initial_states[5][iSats])
+        velocity = np.array([initial_states[3][iSats], initial_states[4][iSats], initial_states[5][iSats]])
+        velocity = convert_zenithX_to_nadirZ(velocity)
+        vel_x_str = str(velocity[0, 0])
+        vel_y_str = str(velocity[0, 1])
+        vel_z_str = str(velocity[0, 2])
         velocity_str = vel_x_str + "  " + vel_y_str + "  " + vel_z_str + " !  Vel wrt Formation (m/s), expressed in F\n"
 
         file = open(file_name, "r")
@@ -46,12 +63,28 @@ def main():
         PY = 'SC-' + str(iSats) + '-py'
         PZ = 'SC-' + str(iSats) + '-pz'
         pos_eh.columns = [PX, PY, PZ]
+
+        for iData in range(len(pos_eh)):
+            pos = np.array([pos_eh[PX][iData], pos_eh[PY][iData], pos_eh[PZ][iData]])
+            pos_converted = convert_nadirZ_to_zenithX(pos)
+            pos_eh[PX][iData] = pos_converted[0, 0]
+            pos_eh[PY][iData] = pos_converted[0, 1]
+            pos_eh[PZ][iData] = pos_converted[0, 2]
+
         vel_eh = pd.read_csv('InOut/VelEH.42', sep=" ", header=None)
         VX = 'SC-' + str(iSats) + '-vx'
         VY = 'SC-' + str(iSats) + '-vy'
         VZ = 'SC-' + str(iSats) + '-vz'
         vel_eh.columns = [VX, VY, VZ]
         state_eh = pd.concat([pos_eh, vel_eh], axis='columns')
+
+        for iData in range(len(vel_eh)):
+            vel = np.array([vel_eh[VX][iData], vel_eh[VY][iData], vel_eh[VZ][iData]])
+            vel_converted = convert_nadirZ_to_zenithX(vel)
+            vel_eh[VX][iData] = vel_converted[0, 0]
+            vel_eh[VY][iData] = vel_converted[0, 1]
+            vel_eh[VZ][iData] = vel_converted[0, 2]
+
         if sat_states.empty:
             sat_states = state_eh
         else:
