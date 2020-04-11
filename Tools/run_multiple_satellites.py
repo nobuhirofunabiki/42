@@ -56,9 +56,22 @@ def main():
             sat_states = state_eh
         else:
             sat_states = pd.concat([sat_states, state_eh], axis='columns')
-        print(sat_states)
 
-    sat_states.to_csv('Tools/sat_states_output.csv')
+    inp_sim = open("InOut/Inp_Sim.txt", "r")
+    inp_sim_lines = inp_sim.readlines()
+    inp_sim.close()
+    temp = inp_sim_lines[4].split()
+    delta_time = float(temp[0])
+
+    time_index = sat_states.index
+    time_table = []
+    for iTime in range(len(sat_states)):
+        time = delta_time * float(time_index.values[iTime])
+        time_table.append(time)
+    sat_states.index = time_table
+    print(sat_states)
+
+    sat_states.to_csv('Tools/sat_states_lvlh.csv')
 
 
 if __name__ == '__main__':
